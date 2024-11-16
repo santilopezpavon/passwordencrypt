@@ -10,12 +10,20 @@ class SecretPassword {
     ALGORITHM = 'sha512';
 
     #getFileHashPath() {
-        return path.join(__dirname, "../files", this.HASH_FILE);
+        return path.join(__dirname, "../../filespassword", this.HASH_FILE);
+    }
+
+    #ensureDirectoryExistence(filePath) { 
+        const dir = path.dirname(filePath); 
+        if (!fs.existsSync(dir)) { 
+            fs.mkdirSync(dir, { recursive: true }); 
+        } 
     }
 
     generateSecretKey(secretKeyPlain) {
         try {
             const hashPathFile = this.#getFileHashPath(); 
+            this.#ensureDirectoryExistence(hashPathFile);
             const hash = crypto.createHash(this.ALGORITHM).update(secretKeyPlain).digest('hex');
             fs.writeFileSync(hashPathFile, hash);
             return true;

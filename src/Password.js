@@ -13,7 +13,7 @@ class Password {
     }
 
     #getFileHashPath() {
-        return path.join(__dirname, "../files", this.PASSWORD_FILE);
+        return path.join(__dirname, "../../filespassword", this.PASSWORD_FILE);
     }
    
     addOrUpdatePassword(label, userName, password, secretKey, id = null) {
