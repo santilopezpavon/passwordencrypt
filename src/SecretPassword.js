@@ -14,7 +14,7 @@ class SecretPassword {
     generateSecretKey(secretKeyPlain) {
         try {
             const hashPathFile = this.#getFileHashPath(); 
-            const hash = crypto.createHash('sha256').update(secretKeyPlain).digest('hex');
+            const hash = crypto.createHash('sha512').update(secretKeyPlain).digest('hex');
             fs.writeFileSync(hashPathFile, hash);
             return true;
         } catch (error) {
@@ -25,9 +25,8 @@ class SecretPassword {
 
     checkSecretKey(secretKeyPlain) {
         const hashPathFile = this.#getFileHashPath(); 
-        const hash = crypto.createHash('sha256').update(secretKeyPlain).digest('hex');
+        const hash = crypto.createHash('sha512').update(secretKeyPlain).digest('hex');
         const storedHash = fs.readFileSync(hashPathFile, 'utf8').trim();       
-
         if(storedHash == hash) {
             return true;
         } else {
@@ -48,7 +47,7 @@ class SecretPassword {
                 mask: "*"
             }); 
     
-            if(claveSecreta == '10') {
+            if(claveSecreta == '0') {
                 return;
             }
     
@@ -63,7 +62,7 @@ class SecretPassword {
                 mask: "*"
             }); 
     
-            if(claveSecreta == '10') {
+            if(claveSecreta == '0') {
                 return;
             }
     
@@ -75,7 +74,7 @@ class SecretPassword {
             if(claveSecreta != claveSecretaAgain) {
                 this.requestKeyPassword(callback, "The secret key not match");
             } else {
-                this.secretPassword.generateSecretKey(claveSecreta);
+                this.generateSecretKey(claveSecreta);
                 callback(claveSecreta);
             }
         }

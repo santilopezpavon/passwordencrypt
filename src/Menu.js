@@ -1,79 +1,142 @@
 const Password = require("./Password");
-const SecretPassword = require("./SecretPassword");
 const readlineSync = require('readline-sync');
 
-
+/**
+ * Class representing the menu for password management.
+ */
 class Menu {
     
     passwordService;
     
+    /**
+     * Create a Menu.
+     */
     constructor() {
         this.passwordService = new Password();
     }
 
-    getMenu(secretKeyPlain) {
-        console.log(`
-            === Options ===
-            1. Get Password List
-            2. Get Password by ID
-            3. Create new Password
-            4. Update password
-            5. Remove password
-        `);
-        const option = readlineSync.question('Please Chose An Option: ');
-        this.proccessOptionMenu(option, secretKeyPlain);
+    /**
+     * Display the menu options and process the selected option.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    displayMenu(secretKeyPlain) {
+        const optionsMenu = [
+            "Get Password List",
+            "Get Password by ID",
+            "Create new Password",
+            "Update Password",
+            "Remove Password"
+        ];
+        const option = readlineSync.keyInSelect(optionsMenu, 'Please Choose An Option:');
+        this.processOptionMenu(option, secretKeyPlain);
     }
 
-    proccessOptionMenu(option, secretKeyPlain) {
-        let label, userName, id, pass, password, passwords;
+    /**
+     * Process the selected menu option.
+     * @param {number} option - The selected menu option.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    processOptionMenu(option, secretKeyPlain) {
         switch (option) {
-            case "1":
-                passwords = this.passwordService.getPasswords();
-                console.log(passwords);
-                this.getMenu(secretKeyPlain);
+            case 0:
+                this.getPasswordList(secretKeyPlain);
                 break;
-            case "2":
-                id = readlineSync.question('Please Chose An ID: ');
-                password = this.passwordService.getPassword(id, secretKeyPlain);
-                console.log(password);
-                this.getMenu(secretKeyPlain);
+            case 1:
+                this.getPasswordById(secretKeyPlain);
                 break;
-            case '3':
-                label = readlineSync.question('Label: ');
-                userName = readlineSync.question('name: ');
-                pass = readlineSync.question('password: ', {
-                    mask: "*",
-                    hideEchoBack: true,
-
-                });
-                this.passwordService.addOrUpdateNewPassword(label, userName, pass, secretKeyPlain);
-                this.getMenu(secretKeyPlain);
+            case 2:
+                this.createPassword(secretKeyPlain);
                 break;
-            case '4':
-                id = readlineSync.question('Id: ');
-                label = readlineSync.question('Label: ');
-                userName = readlineSync.question('name: ');
-                pass = readlineSync.question('password: ', {
-                     mask: "*",
-                     hideEchoBack: true,
-
-                });
-                this.passwordService.addOrUpdateNewPassword(label, userName, pass, secretKeyPlain, id);
-                this.getMenu(secretKeyPlain);
-
+            case 3:
+                this.updatePassword(secretKeyPlain);
                 break;
-            case '5':
-                id = readlineSync.question('Id: ');              
-                this.passwordService.removePassword(id);
-                this.getMenu(secretKeyPlain);
-
+            case 4:
+                this.removePassword(secretKeyPlain);
                 break;
             default:
+                console.log('Exiting...');
                 break;
         }
     }
 
+    /**
+     * Retrieve and display the list of passwords.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    getPasswordList(secretKeyPlain) {
+        try {
+            const passwords = this.passwordService.getPasswords(secretKeyPlain);
+            console.table(passwords);
+        } catch (error) {
+            console.error('Error retrieving password list:', error.message);
+        }
+        this.displayMenu(secretKeyPlain);
+    }
 
+    /**
+     * Retrieve and display a password by its ID.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    getPasswordById(secretKeyPlain) {
+        const id = readlineSync.question('Please Choose An ID: ');
+        try {
+            const password = this.passwordService.getPassword(id, secretKeyPlain);
+            console.table(password);
+        } catch (error) {
+            console.error(`Error retrieving password with ID ${id}:`, error.message);
+        }
+        this.displayMenu(secretKeyPlain);
+    }
+
+    /**
+     * Create a new password entry.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    createPassword(secretKeyPlain) {
+        const label = readlineSync.question('Label: ');
+        const userName = readlineSync.question('User name: ');
+        const pass = readlineSync.question('Password: ', { hideEchoBack: true });
+        try {
+            this.passwordService.addOrUpdatePassword(label, userName, pass, secretKeyPlain);
+            console.log('Password created successfully.');
+        } catch (error) {
+            console.error('Error creating password:', error.message);
+        }
+        this.displayMenu(secretKeyPlain);
+    }
+
+    /**
+     * Update an existing password entry.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    updatePassword(secretKeyPlain) {
+        const id = readlineSync.question('Id: ');
+        const label = readlineSync.question('Label: ');
+        const userName = readlineSync.question('User name: ');
+        const pass = readlineSync.question('Password: ', { hideEchoBack: true });
+        try {
+            this.passwordService.addOrUpdatePassword(label, userName, pass, secretKeyPlain, id);
+            console.log('Password updated successfully.');
+        } catch (error) {
+            console.error('Error updating password:', error.message);
+        }
+        this.displayMenu(secretKeyPlain);
+    }
+
+    /**
+     * Remove a password entry by its ID.
+     * @param {string} secretKeyPlain - The plain secret key for encryption.
+     */
+    removePassword(secretKeyPlain) {
+        const id = readlineSync.question('Id: ');
+        try {
+            this.passwordService.removePassword(id);
+            console.log('Password removed successfully.');
+        } catch (error) {
+            console.error(`Error removing password with ID ${id}:`, error.message);
+        }
+        this.displayMenu(secretKeyPlain);
+    }
 }
 
 module.exports = Menu;
