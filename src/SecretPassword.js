@@ -7,6 +7,8 @@ class SecretPassword {
     
     HASH_FILE = 'hash_secret_key.txt';
 
+    ALGORITHM = 'sha512';
+
     #getFileHashPath() {
         return path.join(__dirname, "../files", this.HASH_FILE);
     }
@@ -14,7 +16,7 @@ class SecretPassword {
     generateSecretKey(secretKeyPlain) {
         try {
             const hashPathFile = this.#getFileHashPath(); 
-            const hash = crypto.createHash('sha512').update(secretKeyPlain).digest('hex');
+            const hash = crypto.createHash(this.ALGORITHM).update(secretKeyPlain).digest('hex');
             fs.writeFileSync(hashPathFile, hash);
             return true;
         } catch (error) {
@@ -25,7 +27,7 @@ class SecretPassword {
 
     checkSecretKey(secretKeyPlain) {
         const hashPathFile = this.#getFileHashPath(); 
-        const hash = crypto.createHash('sha512').update(secretKeyPlain).digest('hex');
+        const hash = crypto.createHash(this.ALGORITHM).update(secretKeyPlain).digest('hex');
         const storedHash = fs.readFileSync(hashPathFile, 'utf8').trim();       
         if(storedHash == hash) {
             return true;
