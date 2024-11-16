@@ -84,14 +84,11 @@ class Password {
             const passwordDB = JSON.parse(fileContent);
 
            const decryptedPasswords = passwordDB.map((entry, index) => {
-                if (entry.label) {
                   return {
                     pos: index,
                     label: entry.label,
                   };
-                } else {
-                  return null;
-                }
+              
               });
               
               
