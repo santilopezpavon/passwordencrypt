@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path'); 
 const crypto = require('crypto');
 const readlineSync = require('readline-sync');
+const parseCommandLineArgs = require('./Utils/ParserArgs');
 
 class SecretPassword {
     
@@ -10,7 +11,7 @@ class SecretPassword {
     ALGORITHM = 'sha512';
 
     #getFileHashPath() {
-        return path.join(__dirname, "../../filespassword", this.HASH_FILE);
+        return path.join(process.env.folderPass, this.HASH_FILE);
     }
 
     #ensureDirectoryExistence(filePath) { 

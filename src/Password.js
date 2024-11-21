@@ -13,7 +13,8 @@ class Password {
     }
 
     #getFileHashPath() {
-        return path.join(__dirname, "../../filespassword", this.PASSWORD_FILE);
+        //console.log(process.env);
+        return path.join(process.env.folderPass, this.PASSWORD_FILE);
     }
    
     addOrUpdatePassword(label, userName, password, secretKey, id = null) {
