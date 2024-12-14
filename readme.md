@@ -9,5 +9,5 @@ Create a folder to contain the password file.
 Next, call the script with the path parameter. This parameter should contain the absolute or relative path to the folder.
 
 ```bash
-npm main.js path='../passwordDir'
+node main.js path='../passwordDir'
 ```
