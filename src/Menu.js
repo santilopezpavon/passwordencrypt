@@ -1,4 +1,4 @@
-const Password = require("./Password");
+const Password = require("./PasswordRepo");
 const readlineSync = require('readline-sync');
 
 /**

@@ -1,5 +1,7 @@
 node_modules
 files/*
 test.js
+testCode.js
+
 files/hash_secret_key.txt
 files/PASSWORD_DB.json
