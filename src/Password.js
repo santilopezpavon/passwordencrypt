@@ -17,17 +17,37 @@ class Password {
         return path.join(process.env.folderPass, this.PASSWORD_FILE);
     }
    
-    addOrUpdatePassword(label, userName, password, secretKey, id = null) {
+    addOrUpdatePassword(secretKey, label= '', userName = '', password = '', id = null) {
         const passwordFile = this.#getFileHashPath();
+        // Create
         const encryptedUserName = this.encrypter.encrypt(userName, secretKey);
-        const encryptedPassword = this.encrypter.encrypt(password, secretKey);
+        const encryptedPassword = this.encrypter.encrypt(password, secretKey);     
+       let passwordData = {};
 
+        if(id == null) {
+            passwordData = {
+                "label": label,
+                "userName": encryptedUserName,
+                "password": encryptedPassword,
+            };
+        }
         
-        const passwordData = {
-            "label": label,
-            "userName": encryptedUserName,
-            "password": encryptedPassword,
-        };
+        // Update 
+        if(id !== null) {
+            const currentPass = this.getPassword(id);
+            passwordData = currentPass;
+            if(label != '') {
+                passwordData["label"] = label;
+            }
+            if(userName != '') {
+                passwordData["userName"] = encryptedUserName;
+            }
+            if(password != '') {
+                passwordData["password"] = encryptedPassword;
+            }
+
+
+        }
 
         let passwordDB = [];
         if (fs.existsSync(passwordFile)) {
@@ -59,18 +79,27 @@ class Password {
 
     }
 
-    getPassword(id, secretKey) {
+    getPassword(id, secretKey = null) {
         const passwordFile = this.#getFileHashPath();
         if (fs.existsSync(passwordFile)) {
             const fileContent = fs.readFileSync(passwordFile, 'utf8');
             const passwordDB = JSON.parse(fileContent);
 
             if(passwordDB[id]) {
-                return {
-                    label: passwordDB[id].label,
-                    userName: this.encrypter.decrypt(passwordDB[id].userName, secretKey),
-                    password: this.encrypter.decrypt(passwordDB[id].password, secretKey),
+                if(secretKey === null) {
+                    return {
+                        label: passwordDB[id].label,
+                        userName: passwordDB[id].userName,
+                        password: passwordDB[id].password,
+                    }
+                } else {
+                    return {
+                        label: passwordDB[id].label,
+                        userName: this.encrypter.decrypt(passwordDB[id].userName, secretKey),
+                        password: this.encrypter.decrypt(passwordDB[id].password, secretKey),
+                    }
                 }
+                
             }
 
         }

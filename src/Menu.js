@@ -97,7 +97,7 @@ class Menu {
         const userName = readlineSync.question('User name: ');
         const pass = readlineSync.question('Password: ', { hideEchoBack: true });
         try {
-            this.passwordService.addOrUpdatePassword(label, userName, pass, secretKeyPlain);
+            this.passwordService.addOrUpdatePassword(secretKeyPlain, label, userName, pass);
             console.log('Password created successfully.');
         } catch (error) {
             console.error('Error creating password:', error.message);
@@ -115,7 +115,7 @@ class Menu {
         const userName = readlineSync.question('User name: ');
         const pass = readlineSync.question('Password: ', { hideEchoBack: true });
         try {
-            this.passwordService.addOrUpdatePassword(label, userName, pass, secretKeyPlain, id);
+            this.passwordService.addOrUpdatePassword(secretKeyPlain, label, userName, pass, id);
             console.log('Password updated successfully.');
         } catch (error) {
             console.error('Error updating password:', error.message);
