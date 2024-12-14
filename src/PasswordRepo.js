@@ -17,6 +17,14 @@ class PasswordRepo {
         //console.log(process.env);
         return path.join(process.env.folderPass, this.PASSWORD_FILE);
     }
+    
+    #readPasswordFile(passwordFile) {
+        if (fs.existsSync(passwordFile)) {
+            const fileContent = fs.readFileSync(passwordFile, 'utf8');
+            return JSON.parse(fileContent);
+        }
+        return [];
+    }
 
     #create(label, userName, password, secretKey) {
         const passwordFile = this.#getFileHashPath();
@@ -24,14 +32,11 @@ class PasswordRepo {
         const encryptedPassword = this.encrypter.encrypt(password, secretKey);     
 
         const pass = new Password(label, encryptedUserName, encryptedPassword);
-
-        let passwordDB = [];
-        if (fs.existsSync(passwordFile)) {
-            const fileContent = fs.readFileSync(passwordFile, 'utf8');
-            passwordDB = JSON.parse(fileContent);
-        }
         const passwordData = pass.getAllData();
+
+        let passwordDB = this.#readPasswordFile(passwordFile);
         passwordDB.push(passwordData);
+
         fs.writeFileSync(passwordFile, JSON.stringify(passwordDB, null, 2));
         console.log('Contraseña agregada con éxito.');
     }
@@ -43,26 +48,19 @@ class PasswordRepo {
         let passwordData = new Password();
         passwordData.setAllProperties(currentPass);
 
-        for (const key in propertiesToUpdate) {
-            if(passwordData.isEncryptedField(key)) {
-                passwordData[key] = this.encrypter.encrypt(propertiesToUpdate[key], secretKey);
-            } else {
-                passwordData[key] = propertiesToUpdate[key];
-            }
+        for (const key in propertiesToUpdate) { 
+            const value = propertiesToUpdate[key]; 
+            passwordData[key] = passwordData.isEncryptedField(key) ? this.encrypter.encrypt(value, secretKey) : value; 
         }
 
-        let passwordDB = [];
-        if (fs.existsSync(passwordFile)) {
-            const fileContent = fs.readFileSync(passwordFile, 'utf8');
-            passwordDB = JSON.parse(fileContent);
-        }
+        let passwordDB = this.#readPasswordFile(passwordFile);       
 
         if(typeof passwordDB[id] !== 'undefined')  {
             const dataToSave = passwordData.getAllData();
             passwordDB[id] = dataToSave;
+            fs.writeFileSync(passwordFile, JSON.stringify(passwordDB, null, 2));
         } 
         
-        fs.writeFileSync(passwordFile, JSON.stringify(passwordDB, null, 2));
         console.log('Contraseña agregada con éxito.');
     }
     
