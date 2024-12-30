@@ -8,6 +8,12 @@ class Password {
         this._password = pass;
     }
 
+    static create(data) {
+        const pass = new Password();
+        pass.setAllProperties(data);
+        return pass;
+    }
+
     setAllProperties(properties) {
         for (const key in properties) {
             const keyObject = '_' + key;

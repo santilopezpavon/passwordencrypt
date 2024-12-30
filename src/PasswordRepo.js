@@ -18,7 +18,11 @@ class PasswordRepo {
         return path.join(process.env.folderPass, this.PASSWORD_FILE);
     }
     
-    #readPasswordFile(passwordFile) {
+    #readPasswordFile(passwordFile = null) {
+        if(passwordFile === null) {
+            passwordFile = this.#getFileHashPath();
+        }
+
         if (fs.existsSync(passwordFile)) {
             const fileContent = fs.readFileSync(passwordFile, 'utf8');
             return JSON.parse(fileContent);
@@ -94,14 +98,7 @@ class PasswordRepo {
     }
 
     getPassword(id, secretKey = null) {
-        const passwordFile = this.#getFileHashPath();
-
-        if (!fs.existsSync(passwordFile)) { 
-            return {};
-        }
-
-        const fileContent = fs.readFileSync(passwordFile, 'utf8');
-        const passwordDB = JSON.parse(fileContent);
+        let passwordDB = this.#readPasswordFile();
         const userData = passwordDB[id];
         if (!userData) {
             return {};
@@ -111,38 +108,25 @@ class PasswordRepo {
         password.setAllProperties(userData);
         let dataPassword = password.getAllData();
 
-        if(secretKey === null) {
-            return dataPassword;
-        } else {
+        if(secretKey !== null) {
             for (const key in dataPassword) {
                 if(password.isEncryptedField(key)) {
                     dataPassword[key] = this.encrypter.decrypt(dataPassword[key], secretKey);
                 }
             }
-            return dataPassword;
-        }
+        }            
+        return dataPassword;
+
     }
 
     getPasswords() {
-        const passwordFile = this.#getFileHashPath();
-        if (fs.existsSync(passwordFile)) {
-            const fileContent = fs.readFileSync(passwordFile, 'utf8');
-            const passwordDB = JSON.parse(fileContent);
-
-           const decryptedPasswords = passwordDB.map((entry, index) => {
-                  return {
-                    id: index,
-                    label: entry.label,
-                  };
-              
-              });
-              
-              
-
-            return decryptedPasswords;
-        } else {
-            return [];
-        }
+        let passwordDB = this.#readPasswordFile();       
+        const decryptedPasswords = passwordDB.map((entry) => {
+            const password = new Password();
+            password.setAllProperties(entry);
+            return password.label;       
+        });
+        return decryptedPasswords;
     }
 }
 
